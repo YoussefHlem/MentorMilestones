@@ -1,11 +1,12 @@
 // @ts-nocheck
 "use client";
-import React, { useState, useEffect } from "react";
+import { ChangeEvent, useState } from "react";
 import styled from "styled-components";
-import { useRouter } from "next/navigation";
-import { productApi } from "@/apis/products";
-import { ClothesFactory } from "@/apis/products/clothes";
+import { useRouter } from "next/router";
+import DashboardLayout from "../../layout";
+import { deleteProduct, getProduct, getProducts, updateProduct } from "@/apis/products";
 
+type EVENT = ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 interface Product {
   id: number;
   title: string;
@@ -16,35 +17,34 @@ interface Product {
   updatedAt: string;
 }
 
-export default function ProductDetails({ params }: { params: { id: string } }) {
-  const [product, setProduct] = useState<Product | null>(null);
+export default function ProductDetails({ product }: { product: Product }) {
   const router = useRouter();
-  const { id } = params;
 
-  function handleDelete(e, productId: string) {
-    e.preventDefault();
-    if (confirm("Are you sure you want to delete this product?")) {
-      productApi(new ClothesFactory()).deleteProduct(productId);
-    }
-  }
+  const [formData, setFormData] = useState({
+    title: product.title,
+    price: product.price,
+    description: product.description,
+    category: product.category,
+    creationAt: new Date(product.creationAt).toLocaleDateString(),
+    updatedAt: new Date(product.updatedAt).toLocaleDateString(),
+  });
 
-  const fetchData = async () => {
-    if (id) {
-      const { data } = await productApi(new ClothesFactory()).getProduct(id);
-      setProduct(data);
-    }
+  const handleInputChange = (e: EVENT) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSaveProduct = (e) => {
+  const handleSaveProduct = async (e: EVENT) => {
     e.preventDefault();
-    productApi(new ClothesFactory()).editProduct(product.id, product);
+    await updateProduct(product.id, formData);
+    router.back();
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [id]);
-
-  if (!product) return <Error>Product not found</Error>;
+  const handleDeleteProduct = async (e: EVENT) => {
+    e.preventDefault();
+    await deleteProduct(product.id);
+    router.back();
+  };
 
   return (
     <FormContainer>
@@ -52,23 +52,44 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
       <Form>
         <FormField>
           <Label htmlFor="title">Product Title</Label>
-          <Input type="text" id="title" name="title" value={product.title} readOnly />
+          <Input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+          />
         </FormField>
         <FormField>
           <Label htmlFor="price">Price</Label>
-          <Input type="number" id="price" name="price" value={product.price} readOnly />
+          <Input
+            type="number"
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleInputChange}
+          />
         </FormField>
         <FormField>
           <Label htmlFor="description">Description</Label>
-          <Textarea id="description" name="description" value={product.description} readOnly />
+          <Textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+          />
         </FormField>
         <FormField>
           <Label htmlFor="category">Category</Label>
-          <Select id="category" name="category" value={product.category}>
+          <Select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+          >
             <option value="clothes">Clothes</option>
             <option value="electronics">Electronics</option>
             <option value="furniture">Furniture</option>
-            {/* Add more categories if needed */}
           </Select>
         </FormField>
         <FormField>
@@ -77,28 +98,47 @@ export default function ProductDetails({ params }: { params: { id: string } }) {
             type="text"
             id="creationAt"
             name="creationAt"
-            value={new Date(product.creationAt).toLocaleDateString()}
+            value={formData.creationAt}
             readOnly
           />
         </FormField>
         <FormField>
           <Label htmlFor="updatedAt">Updated At</Label>
-          <Input
-            type="text"
-            id="updatedAt"
-            name="updatedAt"
-            value={new Date(product.updatedAt).toLocaleDateString()}
-            readOnly
-          />
+          <Input type="text" id="updatedAt" name="updatedAt" value={formData.updatedAt} readOnly />
         </FormField>
         <Actions>
-          <ActionButton onClick={(e) => handleSaveProduct(e)}>Save</ActionButton>
-          <DeleteButton onClick={(e) => handleDelete(e, String(product?.id))}>Delete</DeleteButton>
+          <ActionButton onClick={handleSaveProduct}>Save</ActionButton>
+          <DeleteButton onClick={handleDeleteProduct}>Delete</DeleteButton>
         </Actions>
       </Form>
     </FormContainer>
   );
 }
+
+export const getStaticPaths = async () => {
+  const { data } = await getProducts();
+
+  const paths = data.map((product: Product) => ({
+    params: { id: product.id.toString() },
+  }));
+
+  return { paths, fallback: "blocking" };
+};
+
+export const getStaticProps = async ({ params }: { params: { id: string }[] }) => {
+  const id = params?.id as string;
+  const { data: product } = await getProduct(id);
+
+  return {
+    props: {
+      product,
+    },
+  };
+};
+
+ProductDetails.getLayout = function getLayout(page: React.ReactElement) {
+  return <DashboardLayout>{page}</DashboardLayout>;
+};
 
 const FormContainer = styled.div`
   max-width: 600px;
@@ -192,16 +232,4 @@ const DeleteButton = styled(ActionButton)`
   &:hover {
     background-color: #c82333;
   }
-`;
-
-const Loading = styled.div`
-  text-align: center;
-  font-size: 18px;
-  color: #007bff;
-`;
-
-const Error = styled.div`
-  text-align: center;
-  font-size: 18px;
-  color: #dc3545;
 `;

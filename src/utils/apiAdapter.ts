@@ -1,8 +1,9 @@
 // apiAdapter.ts
+import { notification } from "@/models/notifications";
 import axios, { AxiosResponse } from "axios";
 
 const apiClient = axios.create({
-  baseURL: "https://api.escuelajs.co/api/v1/", // Set your base URL here
+  baseURL: "https://api.escuelajs.co/api/v1/",
 });
 
 export interface ApiResponse<T = any> {

@@ -1,9 +1,12 @@
 "use client";
-import { productApi } from "@/apis/products";
-import { ClothesFactory } from "@/apis/products/clothes";
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import styled from "styled-components";
+import DashboardLayout from "../layout";
+import { createProduct } from "@/apis/products";
+import { useRouter } from "next/navigation";
+import { notification } from "@/models/notifications";
 
+type EVENT = ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 interface FormData {
   title: string;
   price: number;
@@ -12,6 +15,7 @@ interface FormData {
 }
 
 export default function Create() {
+  const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
     title: "",
     price: 0,
@@ -19,9 +23,7 @@ export default function Create() {
     category: "",
   });
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: EVENT) => {
     const { name, value, type } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -29,9 +31,20 @@ export default function Create() {
     }));
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    productApi(new ClothesFactory()).createProduct(formData);
+    const { success } = await createProduct(formData);
+    if (success) {
+      notification(success, "Product created successfully");
+      setFormData({
+        title: "",
+        price: 0,
+        description: "",
+        category: "",
+      });
+      router.back();
+    }
+    notification(success, "Error creating product");
   };
 
   return (
@@ -92,6 +105,10 @@ export default function Create() {
     </FormContainer>
   );
 }
+
+Create.getLayout = function getLayout(page: React.ReactElement) {
+  return <DashboardLayout>{page}</DashboardLayout>;
+};
 
 const FormContainer = styled.div`
   max-width: 600px;

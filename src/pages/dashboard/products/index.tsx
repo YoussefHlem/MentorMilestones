@@ -1,30 +1,24 @@
-// @ts-nocheck
-"use client";
-import { productApi } from "@/apis/products";
-import { ClothesFactory } from "@/apis/products/clothes";
-import List from "@/components/utils/List";
+import { Suspense } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { truncate } from "@/utils/truncate";
+import List from "@/components/utils/List";
+import { getProducts } from "@/apis/products";
+import DashboardLayout from "../layout";
+import TableItem from "@/components/TableItem";
 
-export default function Products() {
-  const [data, setData] = useState([]);
-
-  const fetchData = async () => {
-    const { data } = await productApi(new ClothesFactory()).getAllProducts();
-    setData(data);
+interface Product {
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  category: {
+    name: string;
   };
+  creationAt: string;
+  updatedAt: string;
+}
 
-  const handleDeleteProduct = async (productId: string) => {
-    await productApi(new ClothesFactory()).deleteProduct(productId);
-    fetchData();
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
+export default function Products({ data }: { data: Product[] }) {
   return (
     <Container>
       <Header>
@@ -48,33 +42,25 @@ export default function Products() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <List
-            data={data}
-            renderItem={(item) => (
-              <TableRow>
-                <TableCell>{item.id}</TableCell>
-                <TableCell>{truncate(item.title, 20)}</TableCell>
-                <TableCell>${item.price}</TableCell>
-                <TableCell>{truncate(item.description, 50)}</TableCell>
-                <TableCell>{item.creationAt}</TableCell>
-                <TableCell>{item.updatedAt}</TableCell>
-                <TableCell>{item.category.name}</TableCell>
-                <TableCell>
-                  <ActionButton>
-                    <Link href={`/dashboard/products/${item.id}`}>Edit</Link>
-                  </ActionButton>
-                  <DeleteButton onClick={() => handleDeleteProduct(String(item.id))}>
-                    Delete
-                  </DeleteButton>
-                </TableCell>
-              </TableRow>
-            )}
-          />
+          <Suspense fallback={<h2>Loading Products...</h2>}>
+            <List data={data} renderItem={(item) => <TableItem item={item} />} />
+          </Suspense>
         </TableBody>
       </Table>
     </Container>
   );
 }
+
+export async function getServerSideProps() {
+  const response = getProducts();
+  return {
+    props: response,
+  };
+}
+
+Products.getLayout = function getLayout(page: React.ReactElement) {
+  return <DashboardLayout>{page}</DashboardLayout>;
+};
 
 const Container = styled.div`
   padding: 20px;
