@@ -12,9 +12,7 @@ export default function Furniture() {
   return (
     <>
       <h1>Furniture</h1>
-      <button onClick={createFurnitureHandler} className="text-white">
-        Create Modern Chair
-      </button>
+      <button onClick={createFurnitureHandler}>Create Modern Chair</button>
     </>
   );
 }

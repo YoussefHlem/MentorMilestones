@@ -97,7 +97,7 @@ export default function CRUD() {
           )}
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full py-2 px-4 bg-indigo-600  font-semibold rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Submit
           </button>
@@ -109,7 +109,7 @@ export default function CRUD() {
             <button
               type="button"
               className={`flex-1 py-2 px-4 font-semibold rounded-md shadow ${
-                userType === "admin" ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-700"
+                userType === "admin" ? "bg-indigo-600 " : "bg-gray-200 text-gray-700"
               }`}
               onClick={() => handleUserTypeChange("admin")}
             >
@@ -118,7 +118,7 @@ export default function CRUD() {
             <button
               type="button"
               className={`flex-1 py-2 px-4 font-semibold rounded-md shadow ${
-                userType === "customer" ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-700"
+                userType === "customer" ? "bg-indigo-600 " : "bg-gray-200 text-gray-700"
               }`}
               onClick={() => handleUserTypeChange("customer")}
             >
@@ -133,7 +133,7 @@ export default function CRUD() {
             <button
               type="button"
               className={`flex-1 py-2 px-4 font-semibold rounded-md shadow ${
-                actionType === "login" ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-700"
+                actionType === "login" ? "bg-indigo-600 " : "bg-gray-200 text-gray-700"
               }`}
               onClick={() => setActionType("login")}
             >
@@ -144,9 +144,7 @@ export default function CRUD() {
                 <button
                   type="button"
                   className={`flex-1 py-2 px-4 font-semibold rounded-md shadow ${
-                    actionType === "register"
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-200 text-gray-700"
+                    actionType === "register" ? "bg-indigo-600 " : "bg-gray-200 text-gray-700"
                   }`}
                   onClick={() => setActionType("register")}
                 >
@@ -155,9 +153,7 @@ export default function CRUD() {
                 <button
                   type="button"
                   className={`flex-1 py-2 px-4 font-semibold rounded-md shadow ${
-                    actionType === "update"
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-200 text-gray-700"
+                    actionType === "update" ? "bg-indigo-600 " : "bg-gray-200 text-gray-700"
                   }`}
                   onClick={() => setActionType("update")}
                 >
@@ -166,9 +162,7 @@ export default function CRUD() {
                 <button
                   type="button"
                   className={`flex-1 py-2 px-4 font-semibold rounded-md shadow ${
-                    actionType === "delete"
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-200 text-gray-700"
+                    actionType === "delete" ? "bg-indigo-600 " : "bg-gray-200 text-gray-700"
                   }`}
                   onClick={() => setActionType("delete")}
                 >
