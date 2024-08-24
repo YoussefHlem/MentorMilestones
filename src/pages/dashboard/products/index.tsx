@@ -1,7 +1,13 @@
-import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import styled from "styled-components";
 import List from "@/components/utils/List";
+
+// const List = dynamic(() => import("@/components/utils/List"), {
+//   ssr: false,
+//   loading: () => <h1>Loading ...</h1>,
+// });
+
 import { getProducts } from "@/apis/products";
 import DashboardLayout from "../layout";
 import TableItem from "@/components/TableItem";
@@ -42,9 +48,7 @@ export default function Products({ data }: { data: Product[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <Suspense fallback={<h2>Loading Products...</h2>}>
-            <List data={data} renderItem={(item) => <TableItem item={item} />} />
-          </Suspense>
+          <List data={data} renderItem={(item) => <TableItem item={item} />} />
         </TableBody>
       </Table>
     </Container>

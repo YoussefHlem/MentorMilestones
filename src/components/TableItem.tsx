@@ -43,12 +43,6 @@ const TableRow = styled.tr`
   }
 `;
 
-const TableHeaderCell = styled.th`
-  padding: 15px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-`;
-
 const TableCell = styled.td`
   padding: 15px;
   border-bottom: 1px solid #ddd;
